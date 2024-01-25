@@ -1,0 +1,55 @@
+https://docs.google.com/spreadsheets/d/13EvTP33dl5-TuZcvUPLIlvoRx6KCZpfcJs0YlBAWN_g/edit?usp=sharing
+
+In this project, I used BigQuery to select 3 top selling countries to build funnel models for each of them, based on chosen events: 
+first_visit
+add_to_cart
+add_payment_info
+purchase
+select_promotion
+
+I then used both Google Sheets and Tableau to visually represent the funnel data (%),
+and draw insight from the data.
+
+
+
+
+
+
+
+______________________________________
+WITH top_countries AS (
+  SELECT
+    country,
+    ROW_NUMBER() OVER (ORDER BY COUNT(DISTINCT user_pseudo_id) DESC) as country_rank
+  FROM turing_data_analytics.raw_events
+  -- WHERE event_name IN (""first_visit"", ""add_to_cart"", ""add_payment_info"", ""purchase"", ""select_promotion"")
+  GROUP BY country
+),
+
+aggregated AS (
+  SELECT
+    event_name,
+    country,
+    COUNT(DISTINCT user_pseudo_id) as event_count
+  FROM turing_data_analytics.raw_events
+  WHERE country IN (SELECT country FROM top_countries WHERE country_rank <= 3)
+  AND event_name IN (""first_visit"", ""add_to_cart"", ""add_payment_info"", ""purchase"", ""select_promotion"")
+  GROUP BY event_name, country
+)
+
+SELECT
+  event_name,
+  SUM(CASE WHEN country = (SELECT country FROM top_countries WHERE country_rank = 1) THEN event_count ELSE 0 END) as top_1_country_events,
+  SUM(CASE WHEN country = (SELECT country FROM top_countries WHERE country_rank = 2) THEN event_count ELSE 0 END) as top_2_country_events,
+  SUM(CASE WHEN country = (SELECT country FROM top_countries WHERE country_rank = 3) THEN event_count ELSE 0 END) as top_3_country_events
+FROM aggregated
+GROUP BY event_name
+-- ORDER BY
+-- CASE
+--    WHEN event_name = 'first_visit' THEN 1
+--    WHEN event_name = 'add_to_cart' THEN 2
+--    WHEN event_name = 'select_promotion' THEN 3
+--    WHEN event_name = 'add_payment_info' THEN 4
+--    WHEN event_name = 'purchase' THEN 5
+--    ELSE 6
+--  END;
