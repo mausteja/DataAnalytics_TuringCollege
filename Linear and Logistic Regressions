@@ -1,0 +1,15 @@
+For this intricate project, I looked into healthcare data with a view to building a predictive 10-year heart disease model.
+
+The data was first cleaned and ammended (where possible), then divided into two groups (main 80% / test 20%).
+
+Using statistical software Gretl, I used logistic modeling to try out different models, removing least significant variables based on the p value.
+(Low p value denoting high significance.)
+
+I build an Accuracy, Presicion and Recall table based on different threshold probabilities (i.e. when a patient would be said to have a disease).
+In the medical sphere, it's important to have high recall, or true positives, meaning that it's better to identify as many ill individuals as possible,
+even if it means temporarily misidentifying individuals who actually do not have the disease.
+
+According to the final model, the most significant factors for developing heart disease in 10 years were: 
+1) age 2) being male 3) having medical history with systolic blood pressure 4) high glucose levels 5) smoking >X cigarettes per day								
+
+https://docs.google.com/spreadsheets/d/115VnTVN_vLY78iqrskEVwze6m88MPO8ir7oIJ0MUR98/edit#gid=1437577042
