@@ -1,0 +1,8 @@
+Two part SQL module:
+
+1) https://docs.google.com/spreadsheets/d/1hyEB1SMYOYdFOmFHfrZuexm8d12XAv22GNtX9kOoAvs/edit?usp=sharing
+
+2) https://docs.google.com/spreadsheets/d/145A0II8DfCj9jz_id2LoBjC5_70o9NMyWzJ44xB_pAo/edit?usp=sharing
+
+Here, over multiple steps, I learned to use different SQL funcionality to filter, sort, join, and calculate
+the data needed to present various business insights at a sports equipment company.
