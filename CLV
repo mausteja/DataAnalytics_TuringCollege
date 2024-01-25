@@ -1,0 +1,122 @@
+https://docs.google.com/spreadsheets/d/19eF2INrmU37biC-JZiGs_y_HzyPRNNftNeTJPZPuDfI/edit#gid=543793313
+
+For the Customer Lifetime Value project, I wrote SQL code to put company data into weekly cohorts, calculate average weekly revenue, cumulative growth (%),
+and then build a predictive revenue chart based on the data at our disposal.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+_______________________
+WITH revenue AS ( -- attributes week starting from 0 to 13
+SELECT
+week,
+user_pseudo_id,
+SUM(event_value_in_usd) AS revenue
+FROM ( -- attributes events and user_pseudo_id to week starting from 0
+SELECT
+event_value_in_usd,
+DATE_DIFF(PARSE_DATE('%Y%m%d', event_date), '2020-11-01', WEEK) AS week,
+user_pseudo_id
+FROM
+turing_data_analytics.raw_events
+)
+GROUP BY week, user_pseudo_id
+),
+
+registrations AS ( -- attributes weeks to registrations
+SELECT DISTINCT
+user_pseudo_id,
+week,
+COUNT(user_pseudo_id) OVER (PARTITION BY week ORDER BY week) AS cumulative_registrations
+FROM ( -- attributes distinct users to their first week of interaction
+SELECT
+DISTINCT user_pseudo_id,
+MIN(DATE_DIFF(PARSE_DATE('%Y%m%d', event_date), '2020-11-01', WEEK)) AS week
+FROM
+turing_data_analytics.raw_events
+GROUP BY user_pseudo_id
+)
+),
+
+revenue_per_week AS ( --
+SELECT
+regs.week,
+SUM(CASE WHEN regs.week = rev.week THEN rev.revenue ELSE 0 END) AS zero_week,
+SUM(CASE WHEN regs.week + 1 = rev.week THEN rev.revenue ELSE 0 END) AS first_week,
+SUM(CASE WHEN regs.week + 2 = rev.week THEN rev.revenue ELSE 0 END) AS second_week,
+SUM(CASE WHEN regs.week + 3 = rev.week THEN rev.revenue ELSE 0 END) AS third_week,
+SUM(CASE WHEN regs.week + 4 = rev.week THEN rev.revenue ELSE 0 END) AS fourth_week,
+SUM(CASE WHEN regs.week + 5 = rev.week THEN rev.revenue ELSE 0 END) AS fifth_week,
+SUM(CASE WHEN regs.week + 6 = rev.week THEN rev.revenue ELSE 0 END) AS sixth_week,
+SUM(CASE WHEN regs.week + 7 = rev.week THEN rev.revenue ELSE 0 END) AS seventh_week,
+SUM(CASE WHEN regs.week + 8 = rev.week THEN rev.revenue ELSE 0 END) AS eighth_week,
+SUM(CASE WHEN regs.week + 9 = rev.week THEN rev.revenue ELSE 0 END) AS ninth_week,
+SUM(CASE WHEN regs.week + 10 = rev.week THEN rev.revenue ELSE 0 END) AS tenth_week,
+SUM(CASE WHEN regs.week + 11 = rev.week THEN rev.revenue ELSE 0 END) AS eleventh_week,
+SUM(CASE WHEN regs.week + 12 = rev.week THEN rev.revenue ELSE 0 END) AS twelfth_week
+FROM registrations regs
+JOIN revenue rev
+ON regs.user_pseudo_id = rev.user_pseudo_id
+GROUP BY regs.week
+),
+
+registrations_per_week AS (
+SELECT
+regs.week,
+COUNT(DISTINCT CASE WHEN regs.week = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS zero_week,
+COUNT(DISTINCT CASE WHEN regs.week + 1 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS first_week,
+COUNT(DISTINCT CASE WHEN regs.week + 2 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS second_week,
+COUNT(DISTINCT CASE WHEN regs.week + 3 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS third_week,
+COUNT(DISTINCT CASE WHEN regs.week + 4 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS fourth_week,
+COUNT(DISTINCT CASE WHEN regs.week + 5 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS fifth_week,
+COUNT(DISTINCT CASE WHEN regs.week + 6 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS sixth_week,
+COUNT(DISTINCT CASE WHEN regs.week + 7 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS seventh_week,
+COUNT(DISTINCT CASE WHEN regs.week + 8 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS eighth_week,
+COUNT(DISTINCT CASE WHEN regs.week + 9 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS ninth_week,
+COUNT(DISTINCT CASE WHEN regs.week + 10 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS tenth_week,
+COUNT(DISTINCT CASE WHEN regs.week + 11 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS eleventh_week,
+COUNT(DISTINCT CASE WHEN regs.week + 12 = rev.week THEN rev.user_pseudo_id ELSE NULL END) AS twelfth_week
+FROM registrations regs
+JOIN registrations rev
+ON true
+GROUP BY regs.week
+),
+
+final_result AS (
+SELECT
+FORMAT_DATE('%Y-%m-%d', DATE_ADD(DATE('2020-11-01'), INTERVAL revpw.week WEEK)) AS cohort_start_date,
+ROUND(revpw.zero_week / reg.cumulative_registrations, 5) AS zero_week_revenue_per_registration,
+ROUND(revpw.first_week / reg.cumulative_registrations,5) AS first_week_revenue_per_registration,
+ROUND(revpw.second_week / reg.cumulative_registrations,5) AS second_week_revenue_per_registration,
+ROUND(revpw.third_week / reg.cumulative_registrations,5) AS third_week_revenue_per_registration,
+ROUND(revpw.fourth_week / reg.cumulative_registrations, 5) AS fourth_week_revenue_per_registration,
+ROUND(revpw.fifth_week / reg.cumulative_registrations, 5) AS fifth_week_revenue_per_registration,
+ROUND(revpw.sixth_week / reg.cumulative_registrations, 5) AS sixth_week_revenue_per_registration,
+ROUND(revpw.seventh_week / reg.cumulative_registrations, 5) AS seventh_week_revenue_per_registration,
+ROUND(revpw.eighth_week / reg.cumulative_registrations, 5) AS eighth_week_revenue_per_registration,
+ROUND(revpw.ninth_week / reg.cumulative_registrations, 5) AS ninth_week_revenue_per_registration,
+ROUND(revpw.tenth_week / reg.cumulative_registrations, 5) AS tenth_week_revenue_per_registration,
+ROUND(revpw.eleventh_week / reg.cumulative_registrations, 5) AS eleventh_week_revenue_per_registration,
+ROUND(revpw.twelfth_week / reg.cumulative_registrations, 5) AS twelfth_week_revenue_per_registration
+FROM revenue_per_week revpw
+JOIN registrations_per_week regspw
+ON revpw.week = regspw.week
+JOIN registrations reg
+ON revpw.week = reg.week
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
+)
+SELECT *
+FROM final_result
+WHERE cohort_start_date <> '2021-01-31'
+ORDER BY cohort_start_date ASC;
