@@ -1,0 +1,55 @@
+https://docs.google.com/spreadsheets/d/1UIr16_zqvk9eIvAmSTV-5JimrsD7UwAxKEITkUdOL2I/edit#gid=878135364
+
+In this project, I compared two different versions of two different campaigns each – Black Friday Version 1 and 2 and New Year Version 1 and 2 campaigns.
+The goal was to calculate conversion via impression to click data, and to conclude whether the versions had a significant difference in conversion rates.
+
+Using my statistical knowledge and the binomial A/B test calculater, I came to the conclusion that the difference between New Year campaign versions was significant –
+I couldn't reject the null hypothesis and accepted the alternative hypothesis. (The control group did worse than the experimental group.)
+Meanwhile, the Black Friday campaign versions were insignificantly different, both for 95% and 99% confidence. The null hypothesis was proven here.
+
+
+
+
+
+
+
+
+
+
+___________________________________________
+WITH UniqueClicks AS (
+SELECT
+campaign,
+COUNT(DISTINCT user_pseudo_id) AS unique_clicks
+FROM turing_data_analytics.raw_events
+GROUP BY campaign
+),
+
+FilteredCampaigns AS (
+SELECT
+adsense_monthly_1.Month,
+adsense_monthly_1.campaign,
+adsense_monthly_1.Impressions,
+adsense_monthly_1.Cost,
+UniqueClicks.unique_clicks AS clicks_upd
+FROM turing_data_analytics.adsense_monthly adsense_monthly_1
+LEFT JOIN UniqueClicks
+ON adsense_monthly_1.campaign = UniqueClicks.campaign
+JOIN turing_data_analytics.adsense_monthly adsense_monthly_2
+ON adsense_monthly_1.Month = adsense_monthly_2.Month
+AND (
+(adsense_monthly_1.campaign LIKE '%_V1' AND adsense_monthly_2 .campaign = REPLACE(adsense_monthly_1.campaign, "_V1", "_V2"))
+OR
+(adsense_monthly_1.campaign LIKE '%_V2' AND adsense_monthly_2 .campaign = REPLACE(adsense_monthly_1.campaign, "_V2", "_V1"))
+)
+)-- the main table is being joined with itself. Aliases (adsense_monthly_1 and adsense_monthly_2) differentiate between the two instances of the table to compare campaigns within the same month.
+-- To ensure that we're only interested in rows where one of the campaign versions is _V1 and the other is _V2, and they occur in the same month.
+-- REPLACE is used to derive the name of the corresponding _V2 campaign if we have a _V1 campaign, and vice versa.
+
+SELECT
+Month,
+campaign,
+Impressions,
+clicks_upd,
+Cost
+FROM FilteredCampaigns;
