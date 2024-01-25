@@ -1,0 +1,43 @@
+For this project I continued working with SQL, spreadsheets, and Tableau to conduct a weekly cohort analysis
+of a subscription based product.
+
+Task + SQL code:
+https://docs.google.com/spreadsheets/d/1b9K1O-cMH-mfF-j2aW2AgKcdsE8gDqAjztjDgza1sAs/edit?usp=sharing
+
+Tableau viz:
+https://public.tableau.com/app/profile/austeja.masliukaite/viz/SubscriptionViz/Dashboard1
+
+
+Some insights:
+- Christmas and New Year period attests to the rise of new subscribers
+- Highest retention is seen during the Christmas period
+- US market dissolves after the first few months (with no new subscriptions later on)
+- > 50 % of subscriptions come from desktop purchases
+
+
+
+___________________________________________________
+SELECT
+DATE_TRUNC(subscription_start, WEEK) as cohort_week,
+COUNT(DISTINCT user_pseudo_id) AS cohort_size,
+COUNT(DISTINCT user_pseudo_id) AS week_0,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 1 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_1,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 2 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_2,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 3 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_3,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 4 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_4,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 5 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_5,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 6 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_6,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 7 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_7,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 8 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_8,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 9 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_9,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 10 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_10,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 11 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_11,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 12 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_12,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 13 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_13,
+COUNT(DISTINCT CASE WHEN subscription_end > DATE_ADD(subscription_start, INTERVAL 14 WEEK) OR subscription_end IS NULL THEN user_pseudo_id END) AS week_14
+
+FROM
+turing_data_analytics.subscriptions
+GROUP BY
+cohort_week
+ORDER BY cohort_week
